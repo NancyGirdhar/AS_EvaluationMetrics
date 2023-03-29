@@ -18,7 +18,7 @@ def main():
 
 # Article Evaluation Error (AER)
 
-    s= calCoverageScore(ir,pr,PR,GTR)
+    s= calCoverageScore(ir,pr,PR,GTR,blockDict2id)
     print("Segmentation", s)
     ACS,meanACS= evalArticleCoverage(PR,GTR)
     print("ACS", ACS)
