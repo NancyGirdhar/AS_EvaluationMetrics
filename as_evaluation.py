@@ -16,7 +16,7 @@ def Union(lst1, lst2):
     final_list = list(set(lst1) | set(lst2))
     return final_list
 
-def calCoverageScore(independentBlock,dependentBlock,predArticleBlockDict,articleBlockDict):
+def calCoverageScore(independentBlock,dependentBlock,predArticleBlockDict,articleBlockDict,blockDict2id):
   groundTruthDependent = list()
   groundTruthIndependent = list()
   for gk,gv in articleBlockDict.items():
@@ -28,9 +28,16 @@ def calCoverageScore(independentBlock,dependentBlock,predArticleBlockDict,articl
   groundTruthDependent    = sorted([element for innerList in groundTruthDependent for element in innerList])
   groundTruthIndependent  = sorted([element for innerList in groundTruthIndependent for element in innerList])
   
-  #print("groundTruthDependent:",groundTruthDependent)
-  #print("groundTruthIndependent:",groundTruthIndependent)
+  if isinstance(groundTruthDependent[0], int) == False: 
+    for i  in range(len(groundTruthDependent)):
+      groundTruthDependent[i] = blockDict2id[groundTruthDependent[i]]
 
+    for i  in range(len(groundTruthIndependent)):
+      groundTruthIndependent[i] = blockDict2id[groundTruthIndependent[i]]
+  
+  #print("groundTruthDependent:",groundTruthDependent)
+  #print("groundTruthIndependent:",groundTruthIndependent)  
+  
   predictedDependent  = sorted(dependentBlock)
   predictedIndependent = list()
   for pk,pv in predArticleBlockDict.items():
@@ -58,18 +65,24 @@ def calCoverageScore(independentBlock,dependentBlock,predArticleBlockDict,articl
   #print("commonDependent:",commonDependent)
   #print("commonIndependent:",commonIndependent)
 
-
-  ratioDependent = len(commonDependent) / len(groundTruthDependent)
-  rationIndependent = len(commonIndependent) / len(groundTruthIndependent)
+  ratioDependent = 0.0
+  if len(groundTruthDependent) != 0:
+    ratioDependent = len(commonDependent) / len(groundTruthDependent)
+  
+  rationIndependent = 0.0
+  if len(groundTruthIndependent) != 0:
+    rationIndependent = len(commonIndependent) / len(groundTruthIndependent)
 
 
   totalPredictedBlock = predictedDependent + predictedIndependent
 
   totalGroundTruthBlock = groundTruthDependent + groundTruthIndependent
 
-  segmentation = len(totalPredictedBlock)/len(totalGroundTruthBlock)
+  oversegmentation = 0.0
+  if len(totalGroundTruthBlock) !=0:
+    oversegmentation = len(totalPredictedBlock)/len(totalGroundTruthBlock)
 
-  return segmentation
+  return oversegmentation
 
 
 """## Article Coverage Rate (ACR)"""
@@ -90,14 +103,18 @@ def evalArticleCoverage(predArticleBlockDict,groundTruthArticleBlockDict):
 
         n_a = len(dif1) + len(dif2)
         d_a = len(Union(pv,groundTruthArticleBlockDict[pa]))
-
-        ACS[pa] = 1 - (n_a / d_a)
+        
+        ACS[pa] = 0.0
+        if d_a != 0
+            ACS[pa] = 1 - (n_a / d_a)
 
     isum = 0.0
     for aesk,aesv  in ACS.items():
         isum = isum +  aesv
-
-    meanACS = isum/len(ACS)
+    
+    meanACS = 0.0
+    if len(ACS) != 0
+        meanACS = isum/len(ACS)
 
     return ACS,meanACS
 
@@ -116,13 +133,17 @@ def evalArticleErrorScore(predArticleBlockDict,groundTruthArticleBlockDict):
 
         n_a = len(dif1) + len(dif2)
         d_a = len(Union(pv,groundTruthArticleBlockDict[pa]))
-
-        AES[pa] = n_a / d_a
+        
+        AES[pa] = 0.0
+        if d_a != 0
+            AES[pa] = n_a / d_a
 
     isum = 0.0
     for aesk,aesv  in AES.items():
         isum = isum +  aesv
-
-    meanAES = isum/len(AES)
+    
+    meanAES = 0.0
+    if len(AES) != 0
+        meanAES = isum/len(AES)
 
     return AES,meanAES
